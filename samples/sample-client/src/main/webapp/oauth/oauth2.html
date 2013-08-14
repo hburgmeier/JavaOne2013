@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>OAuth 2 Implicit Grant User Agent Authentication Flow Demo</title>
+    <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            var extractToken = function (hash) {
+                var match = hash.match(/access_token=(\w+)/);
+                location.hash = '';
+                return !!match && match[1];
+            };
+
+            //Client-ID 205b0523-7a0a-4218-87e6-755ec1d7bcd1
+            //Client-Secret 77df198f-eef7-44c9-9bb6-be4411574a6f
+            //redirect = 'http://localhost/oauth/oauth.html'
+
+            var clientId='205b0523-7a0a-4218-87e6-755ec1d7bcd1';
+            var authHost = 'http://authserver-j1bof3861.rhcloud.com/oauth2';
+            var resourceHost = 'http://resourceserver-j1bof3861.rhcloud.com/rest/helloworld';
+            var redirect = location.href;
+
+            var endUserAuthorizationEndpoint = authHost + "/authorize";
+
+            var token = extractToken(location.hash);
+            if (token) {
+                $('div.authenticated').show();
+
+                $('span.token').text(token);
+
+                $.ajax({
+                    url: resourceHost,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', "Bearer " + token);
+                        xhr.setRequestHeader('Accept', "application/json");
+                    }, success: function (response) {
+                        var container = $('span.resource');
+                        if (response) {
+                            container.text("content: '" + JSON.stringify(response) + "'");
+                        } else {
+                            container.text("An error occurred.");
+                        }
+                    }
+                });
+            } else {
+                $('div.authenticate').show();
+
+                var authUrl = endUserAuthorizationEndpoint +
+                        "?response_type=token" +
+                        "&client_id=" + clientId +
+                        "&redirect_uri=" + redirect;
+
+                $("a.connect").attr("href", authUrl);
+            }
+        });
+    </script>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="authenticate hidden">
+    <a class="connect" href="">Connect</a>
+</div>
+
+<div class="authenticated hidden">
+    <p>
+        You are using token <span class="token">[no token]</span>.
+    </p>
+
+    <p>
+        Resource <span class="resource">[no resource]</span>.
+    </p>
+</div>
+</body>
+</html>

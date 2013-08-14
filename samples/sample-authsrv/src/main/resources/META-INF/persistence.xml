@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<persistence version="2.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
+ http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="authsrv" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<non-jta-data-source>java:comp/env/jdbc/PostgreSQLDS</non-jta-data-source>
+		<class>com.github.hburgmeier.jerseyoauth2.authsrv.jpa.TokenEntity</class>
+		<class>com.github.hburgmeier.jerseyoauth2.authsrv.jpa.AuthorizedClientApplication</class>
+		<class>com.github.hburgmeier.jerseyoauth2.authsrv.jpa.PendingClientToken</class>
+		<class>com.github.hburgmeier.jerseyoauth2.authsrv.jpa.RegisteredClient</class>
+		<class>com.github.hburgmeier.jerseyoauth2.authsrv.jpa.User</class>
+	</persistence-unit>
+</persistence>
