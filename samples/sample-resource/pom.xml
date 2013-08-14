@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.github.hburgmeier.javaone2013.samples</groupId>
+    <artifactId>sample</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>sample-resource</artifactId>
+  <packaging>war</packaging>
+  
+  <dependencies>
+        <dependency>
+        	<groupId>com.github.hburgmeier.javaone2013.samples</groupId>
+        	<artifactId>sample-authsrv-rest</artifactId>
+        	<version>${project.version}</version>
+        </dependency>  
+        <dependency>
+        	<groupId>com.github.hburgmeier.jerseyoauth2</groupId>
+        	<artifactId>jersey-oauth2-guice-utils</artifactId>
+        	<version>${jerseyoauth2.version}</version>
+        </dependency>  
+        <dependency>
+        	<groupId>com.github.hburgmeier.jerseyoauth2</groupId>
+        	<artifactId>jersey-oauth2-rs-impl</artifactId>
+        	<version>${jerseyoauth2.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-core</artifactId>
+        	<version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.google.inject</groupId>
+        	<artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.sun.jersey.contribs</groupId>
+        	<artifactId>jersey-guice</artifactId>
+        	<version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-server</artifactId>
+        	<version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-json</artifactId>
+        	<version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.ebaysf.web</groupId>
+        	<artifactId>cors-filter</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>${project.groupId}</groupId>
+        	<artifactId>coffee-reader</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
+  </dependencies>
+  
+  <build>
+  	<finalName>ROOT</finalName>
+  </build>
+  
+  <name>Resource Server for JavaOne 2013</name>
+</project>

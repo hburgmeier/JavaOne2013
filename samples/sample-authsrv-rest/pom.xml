@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.github.hburgmeier.javaone2013.samples</groupId>
+		<artifactId>sample</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>sample-authsrv-rest</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.github.hburgmeier.jerseyoauth2</groupId>
+			<artifactId>jersey-oauth2-api</artifactId>
+			<version>${jerseyoauth2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.hburgmeier.jerseyoauth2</groupId>
+			<artifactId>jersey-oauth2-authsrv-api</artifactId>
+			<version>${jerseyoauth2.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-client</artifactId>
+        	<version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>javax.inject</groupId>
+        	<artifactId>javax.inject</artifactId>
+        	<version>1</version>
+        </dependency>
+	</dependencies>
+	<name>Authorization Server REST service + client</name>
+</project>
