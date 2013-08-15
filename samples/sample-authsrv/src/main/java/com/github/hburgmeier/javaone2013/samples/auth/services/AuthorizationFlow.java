@@ -1,41 +1,61 @@
 package com.github.hburgmeier.javaone2013.samples.auth.services;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import com.github.hburgmeier.jerseyoauth2.api.types.ResponseType;
+import com.github.hburgmeier.jerseyoauth2.api.protocol.IAuthorizationRequest;
 import com.github.hburgmeier.jerseyoauth2.api.user.IUser;
+import com.github.hburgmeier.jerseyoauth2.authsrv.api.IConfiguration;
+import com.github.hburgmeier.jerseyoauth2.authsrv.api.ScopeDescription;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.client.IRegisteredClientApp;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ui.AuthorizationFlowException;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ui.IAuthorizationFlow;
 
 public class AuthorizationFlow implements IAuthorizationFlow {
 
+	private final IConfiguration configuration;
+	
+	@Inject
+	public AuthorizationFlow(IConfiguration configuration)
+	{
+		this.configuration = configuration;
+	}
+	
 	@Override
-	public void startAuthorizationFlow(IUser user,
-			IRegisteredClientApp clientApp, Set<String> scope, ResponseType requestedResponseType,
+	public void startAuthorizationFlow(IUser user, IRegisteredClientApp clientApp, Set<String> scope, IAuthorizationRequest originalRequest, 
 			HttpServletRequest request, HttpServletResponse response, ServletContext servletContext)
 			throws AuthorizationFlowException, ServletException, IOException {
-		RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/oauth2/auth.jsp");
-		request.setAttribute("clientApp", clientApp);
-		request.setAttribute("scope", scope);
-		request.setAttribute("responseType", requestedResponseType);
 		
-		StringBuffer scopesBuf = new StringBuffer();
+		HttpSession session = request.getSession();
+		
+		AuthRequestContainer container = new AuthRequestContainer(originalRequest, clientApp, scope);
+		session.setAttribute(AuthRequestContainer.KEY, container);
+		
+		List<String> scopeDescs = new LinkedList<>();
 		if (scope!=null)
 		{
+			Map<String, ScopeDescription> scopeMap = configuration.getScopeDescriptions();
 			for (String scopeItem : scope)
 			{
-				scopesBuf.append(scopeItem).append(" ");
+				String scopeDescription = scopeMap.get(scopeItem).getDescription();
+				scopeDescs.add(scopeDescription);
 			}
 		}
-		request.setAttribute("scopes", scopesBuf.toString());
+		
+		RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/oauth2/auth.jsp");
+		request.setAttribute("clientApp", clientApp);
+		request.setAttribute("scopeDesc", scopeDescs);
 		
 		requestDispatcher.forward(request, response);
 	}
@@ -48,4 +68,13 @@ public class AuthorizationFlow implements IAuthorizationFlow {
 		requestDispatcher.forward(request, response);
 	}
 
+	@Override
+	public void handleInvalidRedirectUrl(HttpServletRequest request,
+			HttpServletResponse response, ServletContext servletContext)
+			throws AuthorizationFlowException, ServletException, IOException {
+		RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/error.jsp");
+		requestDispatcher.forward(request, response);
+	}
+	
+	
 }

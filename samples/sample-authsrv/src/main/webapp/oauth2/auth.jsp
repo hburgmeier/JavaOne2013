@@ -15,14 +15,11 @@
 		<p>Do you trust the application ${clientApp.applicationName} ?</p>
 		<p>It requested the following permissions:<p>
 		<ul>
-		<c:forEach var="scopeItem" items="${scope}">
-			<li>${scopeItem}</li>
+		<c:forEach var="scopeDescItem" items="${scopeDesc}">
+			<li>${scopeDescItem}</li>
 		</c:forEach>	
 		</ul>
 		<form id="approveForm" action="<c:url value="/oauth2/allow" />" method="post">
-			<input type="hidden" name="client_id" value="${clientApp.clientId}" />
-			<input type="hidden" name="scope" value="${scopes}" />
-			<input type="hidden" name="responseType" value="${responseType}" />
 			<button class="btn" id="approveBtn" type="button">Approve</button>
 			<button class="btn" id="denyBtn" type="button">Deny</button>
 		</form>

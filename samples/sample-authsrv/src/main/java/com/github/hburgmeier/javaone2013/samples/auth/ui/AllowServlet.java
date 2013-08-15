@@ -9,7 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.github.hburgmeier.javaone2013.samples.auth.services.AuthRequestContainer;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.OAuth2ProtocolException;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.ResponseBuilderException;
 import com.github.hburgmeier.jerseyoauth2.api.types.ResponseType;
@@ -45,21 +47,20 @@ public class AllowServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
+		HttpSession session = request.getSession();		
 		IUser user = userService.getCurrentUser(request);
 		
-		String clientId = request.getParameter("client_id");
-		IRegisteredClientApp clientApp = clientService.getRegisteredClient(clientId);
+		AuthRequestContainer container = (AuthRequestContainer)session.getAttribute(AuthRequestContainer.KEY);
+		if (container == null)
+			throw new ServletException("Container is missing");
 		
-		String scopes = request.getParameter("scope");
-		Set<String> allowedScopes = new HashSet<String>(Arrays.asList(scopes.split(" ")));
-		
-		ResponseType requestedResponseType = ResponseType.valueOf(request.getParameter("responseType"));
+		IRegisteredClientApp clientApp = container.getClientApp();
+		Set<String> allowedScopes = container.getScopes();
 		
 		try {
 			IAuthorizedClientApp authorizedClient = clientService.authorizeClient(user, clientApp, allowedScopes);
 			
-			authorizationService.sendAuthorizationReponse(request, response, requestedResponseType, clientApp, authorizedClient, null);
+			authorizationService.sendAuthorizationReponse(request, response, container.getOriginalRequest(), clientApp, authorizedClient);
 		} catch (OAuth2ProtocolException | ResponseBuilderException | ClientServiceException e) {
 			throw new ServletException(e);
 		}
