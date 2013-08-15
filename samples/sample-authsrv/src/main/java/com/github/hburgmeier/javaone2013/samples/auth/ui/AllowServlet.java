@@ -1,8 +1,6 @@
 package com.github.hburgmeier.javaone2013.samples.auth.ui;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -14,7 +12,6 @@ import javax.servlet.http.HttpSession;
 import com.github.hburgmeier.javaone2013.samples.auth.services.AuthRequestContainer;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.OAuth2ProtocolException;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.ResponseBuilderException;
-import com.github.hburgmeier.jerseyoauth2.api.types.ResponseType;
 import com.github.hburgmeier.jerseyoauth2.api.user.IUser;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.client.ClientServiceException;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.client.IAuthorizationService;
