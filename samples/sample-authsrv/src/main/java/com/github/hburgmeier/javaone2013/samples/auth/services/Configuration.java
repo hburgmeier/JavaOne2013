@@ -48,4 +48,9 @@ public class Configuration implements IConfiguration {
 		return true;
 	}
 
+	@Override
+	public boolean getAllowScopeEnhancementWithRefreshToken() {
+		return true;
+	}
+	
 }

@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.github.hburgmeier.jerseyoauth2.api.protocol.IAuthorizationRequest;
+import com.github.hburgmeier.jerseyoauth2.api.protocol.IRefreshTokenRequest;
 import com.github.hburgmeier.jerseyoauth2.api.user.IUser;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.IConfiguration;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ScopeDescription;
@@ -76,5 +77,16 @@ public class AuthorizationFlow implements IAuthorizationFlow {
 		requestDispatcher.forward(request, response);
 	}
 	
+	@Override
+	public void startScopeEnhancementFlow(IUser user, IRegisteredClientApp clientApp, Set<String> requestedScope,
+			IRefreshTokenRequest refreshTokenRequest, HttpServletRequest request, HttpServletResponse response,
+			ServletContext servletContext) throws AuthorizationFlowException {
+		try {
+			RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/error.jsp");
+			requestDispatcher.forward(request, response);
+		} catch (ServletException | IOException e) {
+			throw new AuthorizationFlowException(e);
+		}
+	}
 	
 }

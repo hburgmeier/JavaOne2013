@@ -8,4 +8,8 @@
   <artifactId>sample-client</artifactId>
   <packaging>war</packaging>
   <name>Client of OAuth2 Service</name>
+  
+  <build>
+  	<finalName>ROOT</finalName>
+  </build>
 </project>
