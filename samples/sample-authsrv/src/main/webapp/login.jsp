@@ -17,9 +17,9 @@
         <p><strong>Password: </strong>
             <input type="password" size="15" name="j_password"></p>
         <p>
-            <input type="submit" value="Login"/>
-            <input type="reset" value="Clear"/></p>
+            <button class="btn" id="loginBtn">Login</button>
     </form> 
   </div>
+  <script type="text/javascript" src="/js/login.js"></script>
 </body>
 </html>
