@@ -1,14 +1,12 @@
 package com.github.hburgmeier.javaone2013.samples.auth.services;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import com.github.hburgmeier.jerseyoauth2.authsrv.api.IConfiguration;
+import com.github.hburgmeier.jerseyoauth2.authsrv.api.AbstractConfiguration;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ScopeDescription;
 
-public class Configuration implements IConfiguration {
+public class Configuration extends AbstractConfiguration {
 
 	protected final Map<String, ScopeDescription> scopeDescriptions = new HashMap<>();
 	
@@ -29,11 +27,6 @@ public class Configuration implements IConfiguration {
 	}
 
 	@Override
-	public Set<String> getDefaultScopes() {
-		return Collections.emptySet();
-	}
-
-	@Override
 	public boolean getStrictSecurity() {
 		return false;
 	}
@@ -43,11 +36,6 @@ public class Configuration implements IConfiguration {
 		return false;
 	}
 	
-	@Override
-	public boolean getEnableRefreshTokenGeneration() {
-		return true;
-	}
-
 	@Override
 	public boolean getAllowScopeEnhancementWithRefreshToken() {
 		return true;

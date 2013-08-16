@@ -10,6 +10,7 @@ import com.github.hburgmeier.javaone2013.samples.auth.services.Configuration;
 import com.github.hburgmeier.javaone2013.samples.auth.ui.AllowServlet;
 import com.github.hburgmeier.javaone2013.samples.auth.ui.DenyServlet;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.IConfiguration;
+import com.github.hburgmeier.jerseyoauth2.authsrv.api.client.IClientIdGenerator;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.token.ITokenGenerator;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ui.IAuthorizationFlow;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.user.IUserService;
@@ -17,6 +18,7 @@ import com.github.hburgmeier.jerseyoauth2.authsrv.impl.authorize.AuthorizationSe
 import com.github.hburgmeier.jerseyoauth2.authsrv.impl.authorize.IssueAccessTokenServlet;
 import com.github.hburgmeier.jerseyoauth2.authsrv.impl.services.DefaultPrincipalUserService;
 import com.github.hburgmeier.jerseyoauth2.authsrv.impl.services.MD5TokenGenerator;
+import com.github.hburgmeier.jerseyoauth2.authsrv.impl.services.UUIDClientIdGenerator;
 import com.github.hburgmeier.jerseyoauth2.authsrv.jpa.guice.DefaultPersistenceProvider;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.guice.JerseyServletModule;
@@ -27,6 +29,7 @@ public class AppModule extends JerseyServletModule {
 	@Override
 	protected void configureServlets() {
 		bind(ITokenGenerator.class).to(MD5TokenGenerator.class);
+		bind(IClientIdGenerator.class).to(UUIDClientIdGenerator.class);
 		bind(IConfiguration.class).to(Configuration.class);
 		bind(IUserService.class).to(DefaultPrincipalUserService.class);
 		bind(EntityManagerFactory.class).toProvider(new DefaultPersistenceProvider("org.hibernate.dialect.PostgreSQLDialect"));

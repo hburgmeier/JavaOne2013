@@ -1,6 +1,8 @@
 package com.github.hburgmeier.javaone2013.samples.auth.ui;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -13,7 +15,7 @@ import com.github.hburgmeier.javaone2013.samples.auth.services.AuthRequestContai
 import com.github.hburgmeier.jerseyoauth2.api.protocol.OAuth2ErrorCode;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.OAuth2ProtocolException;
 import com.github.hburgmeier.jerseyoauth2.api.protocol.ResponseBuilderException;
-import com.github.hburgmeier.jerseyoauth2.authsrv.api.client.IAuthorizationService;
+import com.github.hburgmeier.jerseyoauth2.authsrv.api.authorization.IAuthorizationService;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -40,11 +42,11 @@ public class DenyServlet extends HttpServlet {
 				throw new ServletException("Container is missing");
 			
 			String state = container.getOriginalRequest().getState();
-			String redirectUrl = container.getClientApp().getCallbackUrl();
+			URI redirectUrl = new URI(container.getClientApp().getCallbackUrl());
 			
 			OAuth2ProtocolException error = new OAuth2ProtocolException(OAuth2ErrorCode.ACCESS_DENIED, state); 
 			authorizationService.sendErrorResponse(error, response, redirectUrl );
-		} catch (ResponseBuilderException e) {
+		} catch (ResponseBuilderException | URISyntaxException e) {
 			throw new ServletException(e);
 		}
 	}
