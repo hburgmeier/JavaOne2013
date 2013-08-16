@@ -3,6 +3,8 @@ package com.github.hburgmeier.javaone2013.samples.auth.services;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.time.Duration;
+
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.AbstractConfiguration;
 import com.github.hburgmeier.jerseyoauth2.authsrv.api.ScopeDescription;
 
@@ -15,10 +17,10 @@ public class Configuration extends AbstractConfiguration {
 		ScopeDescription espresso = new ScopeDescription("espresso", "Get Coffee Prices");
 		scopeDescriptions.put("espresso", espresso);
 	}
-	
+
 	@Override
-	public long getTokenExpiration() {
-		return 3600;
+	public Duration getTokenLifetime() {
+		return Duration.standardHours(1);
 	}
 
 	@Override
