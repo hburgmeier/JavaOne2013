@@ -70,7 +70,7 @@ public class AuthorizationFlow implements IAuthorizationFlow {
 	}
 
 	@Override
-	public void handleInvalidRedirectUrl(HttpServletRequest request,
+	public void handleInvalidClient(HttpServletRequest request,
 			HttpServletResponse response, ServletContext servletContext)
 			throws AuthorizationFlowException, ServletException, IOException {
 		RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher("/error.jsp");
