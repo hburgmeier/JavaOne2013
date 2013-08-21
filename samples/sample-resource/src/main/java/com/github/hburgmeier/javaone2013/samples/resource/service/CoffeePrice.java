@@ -1,5 +1,8 @@
 package com.github.hburgmeier.javaone2013.samples.resource.service;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class CoffeePrice {
 
 	private String price;
