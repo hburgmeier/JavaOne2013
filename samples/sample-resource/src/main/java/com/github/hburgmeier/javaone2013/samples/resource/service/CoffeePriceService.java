@@ -1,5 +1,9 @@
 package com.github.hburgmeier.javaone2013.samples.resource.service;
 
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,6 +22,7 @@ import com.github.hburgmeier.jerseyoauth2.rs.api.annotations.OAuth20;
 public class CoffeePriceService {
 
 	private final CoffeeReader coffeeReader = new CoffeeReader();
+	private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
 	
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -25,7 +30,8 @@ public class CoffeePriceService {
 	{
 		try {
 			String coffePrice = coffeeReader.getCurrentPrice();
-			return new CoffeePrice(coffePrice);
+			String timestamp = dateFormat.format(new Date());
+			return new CoffeePrice(coffePrice, timestamp);
 		} catch (CoffeeReadException e) {
 			throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
 		}

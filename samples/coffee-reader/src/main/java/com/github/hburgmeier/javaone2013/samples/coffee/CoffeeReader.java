@@ -28,21 +28,25 @@ public class CoffeeReader {
 			HttpEntity entity1 = response1.getEntity();
 			try {
 			    String priceTable = EntityUtils.toString(entity1);
-			    String currentDate = getCurrentDate();
-			    
-			    Pattern matcher = Pattern.compile(currentDate+"</td>[^<]*<td[^>]*>(\\d+\\.\\d+)");
-			    Matcher match = matcher.matcher(priceTable);
-			    if (match.find())
-			    {
-			    	return match.group(1);
-			    } else
-			    	return "unknown";
+			    return parseHtmlTable(priceTable);
 			} finally {
 				EntityUtils.consume(entity1);
 			}			
 		} catch (IOException e) {
 			throw new CoffeeReadException(e);
 		}		
+	}
+
+	protected String parseHtmlTable(String priceTable) {
+		String currentDate = getCurrentDate();
+		
+		Pattern matcher = Pattern.compile(currentDate+"</td>[^<]*<td[^>]*>(\\d+\\.\\d+)");
+		Matcher match = matcher.matcher(priceTable);
+		if (match.find())
+		{
+			return match.group(1);
+		} else
+			return "unknown";
 	}
 	
 	protected String getCurrentDate()
