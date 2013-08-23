@@ -3,79 +3,151 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="ext/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" charset="utf-8" src="ext/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="ext/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+    <link href="css/style.css" rel="stylesheet" media="screen">
+
     <title>OAuth 2 Implicit Grant User Agent Authentication Flow Demo</title>
-    <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+
     <script type="text/javascript" charset="utf-8">
         $(function () {
-            var extractToken = function (hash) {
-                var match = hash.match(/access_token=(\w+)/);
-                location.hash = '';
-                return !!match && match[1];
-            };
-
-            //Client-ID 205b0523-7a0a-4218-87e6-755ec1d7bcd1
-            //Client-Secret 77df198f-eef7-44c9-9bb6-be4411574a6f
-            //redirect = 'http://localhost/oauth/oauth.html'
-
-            var clientId='205b0523-7a0a-4218-87e6-755ec1d7bcd1';
-            var authHost = 'http://authserver-j1bof3861.rhcloud.com/oauth2';
-            var resourceHost = 'http://resourceserver-j1bof3861.rhcloud.com/rest/helloworld';
-            var redirect = location.href;
-
-            var endUserAuthorizationEndpoint = authHost + "/authorize";
-
-            var token = extractToken(location.hash);
-            if (token) {
-                $('div.authenticated').show();
-
-                $('span.token').text(token);
-
-                $.ajax({
-                    url: resourceHost,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', "Bearer " + token);
-                        xhr.setRequestHeader('Accept', "application/json");
-                    }, success: function (response) {
-                        var container = $('span.resource');
-                        if (response) {
-                            container.text("content: '" + JSON.stringify(response) + "'");
-                        } else {
-                            container.text("An error occurred.");
+                    var extractResponse = function (location) {
+                        var result = {
+                            token: null,
+                            error: null};
+                        var tokenMatch = location.hash.match(/access_token=(\w+)/);
+                        if (tokenMatch) {
+                            result.token = tokenMatch[1];
                         }
+                        var errorMatch = location.search.match(/error=(\w+)/);
+                        if (errorMatch) {
+                            result.error = errorMatch[1];
+                        }
+                        return result;
+                    };
+                    var cleanLocation = function () {
+                        if ('replaceState' in history) {
+                            history.replaceState('', document.title, location.pathname);
+                        } else {
+                            location.hash = '';
+                            location.search = '';
+                        }
+                        return location.href.split('?')[0].split('#')[0];
+                    };
+                    var loadResource = function (resourceHost, accessToken, successCallback, errorCallback) {
+                        $('#loadResource').button('loading');
+                        // access the OAuth protected resource
+                        // this requires a CORS enabled browser and server...
+                        $.ajax({
+                            url: resourceHost,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', "Bearer " + accessToken);
+                                xhr.setRequestHeader('Accept', "application/json");
+                            },
+                            complete: function () {
+                                $('#loadResource').button('reset');
+                            }, success: successCallback, error: errorCallback
+                        });
+                    };
+                    var loadResourceSuccess = function (response) {
+                        if (response) {
+                            $('#resourceContent').text(JSON.stringify(response));
+                        } else {
+                            $('#resourceContent').text("An error occurred.");
+                        }
+                    };
+                    var loadResourceError = function (jqXHR, textStatus, errorThrown) {
+                        $('#errorMSG').removeClass('hide');
+                        $('#errorText').text('accessing resource server: (HTTP ' + jqXHR.status + ' ' + errorThrown + ')');
+                    };
+
+
+                    $('#loadResource').click(function (event) {
+                        loadResource(resourceHost, response.token, loadResourceSuccess, loadResourceError);
+                    });
+
+                    //mm-test-espresso-2
+                    //Client-ID 8541142e-b205-4b82-9c79-3a4c4f0f4f96
+                    //redirect = 'http://localhost/oauth/oauth.html'
+
+                    // auth settings
+                    var clientId = '8541142e-b205-4b82-9c79-3a4c4f0f4f96';
+                    var authHost = 'http://authserver-j1bof3861.rhcloud.com/oauth2';
+                    var endUserAuthorizationEndpoint = authHost + "/authorize";
+                    var scope = 'espresso';
+                    // resource settings
+                    var resourceHost = 'http://resourceserver-j1bof3861.rhcloud.com/rest/coffee';
+
+                    // process auth server response
+                    var response = extractResponse(location);
+
+                    // beautify locationbar and get correct redirect uri
+                    var redirect = cleanLocation();
+
+                    if (response.token) {
+                        $('#authenticated').removeClass('hide');
+                        $('#token').text(response.token);
+
+                        loadResource(resourceHost, response.token, loadResourceSuccess, loadResourceError);
+
+                    } else if (response.error) {
+                        $('#errorMSG').removeClass('hide');
+                        $('#errorText').text('Authentication error: ' + response.error);
+
+                    } else {
+                        $('#authenticate').removeClass('hide');
+                        var authUrl = endUserAuthorizationEndpoint +
+                                "?response_type=token" +
+                                "&client_id=" + clientId +
+                                "&redirect_uri=" + redirect +
+                                "&scope=" + scope;
+
+                        $("#connect").attr("href", authUrl);
                     }
-                });
-            } else {
-                $('div.authenticate').show();
-
-                var authUrl = endUserAuthorizationEndpoint +
-                        "?response_type=token" +
-                        "&client_id=" + clientId +
-                        "&redirect_uri=" + redirect;
-
-                $("a.connect").attr("href", authUrl);
-            }
-        });
+                }
+        );
     </script>
-    <style>
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
 
 <body>
-<div class="authenticate hidden">
-    <a class="connect" href="">Connect</a>
-</div>
+<div class="container">
+    <h1>OAuth 2 Implicit Grant User Agent Authentication Flow Demo</h1>
 
-<div class="authenticated hidden">
-    <p>
-        You are using token <span class="token">[no token]</span>.
-    </p>
+    <div id="authenticate" class="hide">
+        <h3>Authenticate</h3>
+        <a id="connect" class="btn btn-primary" href="">Connect</a>
+    </div>
 
-    <p>
-        Resource <span class="resource">[no resource]</span>.
-    </p>
+    <div id="authenticated" class="hide">
+        <h3>Authenticated Successful</h3>
+
+        <p>
+            You are using access token <span id="token">[no token]</span>
+        </p>
+
+        <h4>Resource Content</h4>
+
+        <p>
+            <button type="button" class="btn btn-primary" id="loadResource"
+                    data-loading-text="<i class='glyphicon glyphicon-refresh spin'></i> refreshing...">
+                refresh
+            </button>
+        </p>
+        <p>
+            <span id="resourceContent">[no resource content]</span>
+        </p>
+    </div>
+    <div id="errorMSG" class="hide">
+        <h3>Error</h3>
+
+        <p>
+            Error <span id="errorText">[no error]</span>
+        </p>
+    </div>
 </div>
 </body>
 </html>
