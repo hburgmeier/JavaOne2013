@@ -18,7 +18,20 @@
                     var extractResponse = function (location) {
                         var result = {
                             token: null,
-                            error: null};
+                            error: null,
+                            client: null};
+
+                        // clientID to use
+                        var cMatch = location.hash.match(/client=([\w\-^/^=]+)/);
+                        if (cMatch) {
+                            result.client = cMatch[1];
+                        }
+                        // token if we where already authorized
+                        var atMatch = location.hash.match(/at=(\w+)/);
+                        if (atMatch) {
+                            result.token = atMatch[1];
+                        }
+                        // token from auth server
                         var tokenMatch = location.hash.match(/access_token=(\w+)/);
                         if (tokenMatch) {
                             result.token = tokenMatch[1];
@@ -29,14 +42,34 @@
                         }
                         return result;
                     };
-                    var cleanLocation = function () {
+                    var cleanLocation = function (at, client) {
                         if ('replaceState' in history) {
-                            history.replaceState('', document.title, location.pathname);
+                            var loc = location.pathname;
+                            if (at || client) {
+                                loc += '#';
+                            }
+                            loc += getURLHashEncodedParams(at, client);
+                            history.replaceState('', document.title, loc);
                         } else {
-                            location.hash = '';
+                            location.hash = getURLHashEncodedParams(at, client);
                             location.search = '';
                         }
                         return location.href.split('?')[0].split('#')[0];
+                    };
+                    var getURLHashEncodedParams = function(at, client) {
+                        var loc = '';
+                        var separator = false;
+                        if (at) {
+                            loc += 'at=' + at;
+                            separator = true;
+                        }
+                        if (client) {
+                            if (separator) {
+                                loc += '/'
+                            }
+                            loc += 'client=' + client;
+                        }
+                        return loc;
                     };
                     var loadResource = function (resourceHost, accessToken, successCallback, errorCallback) {
                         $('#loadResource').button('loading');
@@ -61,8 +94,7 @@
                         }
                     };
                     var loadResourceError = function (jqXHR, textStatus, errorThrown) {
-                        $('#errorMSG').removeClass('hide');
-                        $('#errorText').text('accessing resource server: (HTTP ' + jqXHR.status + ' ' + errorThrown + ')');
+                        $('#alert').addClass('alert-danger').html('<strong>Error</strong> accessing resource server: (HTTP ' + jqXHR.status + ' ' + errorThrown + ')');
                     };
 
 
@@ -76,8 +108,8 @@
 
                     // auth settings
                     var clientId = '8541142e-b205-4b82-9c79-3a4c4f0f4f96';
-                    var authHost = 'http://authserver-j1bof3861.rhcloud.com/oauth2';
-                    var endUserAuthorizationEndpoint = authHost + "/authorize";
+                    var authHost = 'authserver-j1bof3861.rhcloud.com';
+                    var endUserAuthorizationEndpoint = 'http://' + authHost + "/oauth2/authorize";
                     var scope = 'espresso';
                     // resource settings
                     var resourceHost = 'http://resourceserver-j1bof3861.rhcloud.com/rest/coffee';
@@ -85,8 +117,13 @@
                     // process auth server response
                     var response = extractResponse(location);
 
+                    // use clientId provided on URL is any
+                    if (response.client) {
+                        clientId = response.client;
+                    }
+
                     // beautify locationbar and get correct redirect uri
-                    var redirect = cleanLocation();
+                    var redirect = cleanLocation(response.token, clientId);
 
                     if (response.token) {
                         $('#authenticated').removeClass('hide');
@@ -95,19 +132,19 @@
                         loadResource(resourceHost, response.token, loadResourceSuccess, loadResourceError);
 
                     } else if (response.error) {
-                        $('#errorMSG').removeClass('hide');
-                        $('#errorText').text('Authentication error: ' + response.error);
-
-                    } else {
-                        $('#authenticate').removeClass('hide');
-                        var authUrl = endUserAuthorizationEndpoint +
-                                "?response_type=token" +
-                                "&client_id=" + clientId +
-                                "&redirect_uri=" + redirect +
-                                "&scope=" + scope;
-
-                        $("#connect").attr("href", authUrl);
+                        $('#alert').addClass('alert-danger').text('Authentication error: ' + response.error);
                     }
+
+                    var authUrl = endUserAuthorizationEndpoint +
+                            "?response_type=token" +
+                            "&client_id=" + clientId +
+                            "&redirect_uri=" + redirect +
+                            "&scope=" + scope;
+
+                    $('#connect').attr("href", authUrl);
+                    $('#authHost').text(authHost);
+                    $('#clientId').text(clientId);
+
                 }
         );
     </script>
@@ -117,9 +154,9 @@
 <div class="container">
     <h1>OAuth 2 Implicit Grant User Agent Authentication Flow Demo</h1>
 
-    <div id="authenticate" class="hide">
+    <div id="authenticate">
         <h3>Authenticate</h3>
-        <a id="connect" class="btn btn-primary" href="">Connect</a>
+        <a id="connect" class="btn btn-primary" href="">Connect</a> <strong>Provider</strong> <span id="authHost"></span> <strong>Client</strong> <span id="clientId"></span>
     </div>
 
     <div id="authenticated" class="hide">
@@ -141,12 +178,7 @@
             <span id="resourceContent">[no resource content]</span>
         </p>
     </div>
-    <div id="errorMSG" class="hide">
-        <h3>Error</h3>
-
-        <p>
-            Error <span id="errorText">[no error]</span>
-        </p>
+    <div id="alert" class="alert">
     </div>
 </div>
 </body>
