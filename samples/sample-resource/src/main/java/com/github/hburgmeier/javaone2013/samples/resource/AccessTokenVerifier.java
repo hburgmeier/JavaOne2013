@@ -1,4 +1,4 @@
-package com.github.hburgmeier.javaone2013.samples.resource.guice;
+package com.github.hburgmeier.javaone2013.samples.resource;
 
 import com.github.hburgmeier.javaone2013.samples.auth.rest.AccessTokenClient;
 import com.github.hburgmeier.jerseyoauth2.api.token.IAccessTokenInfo;
