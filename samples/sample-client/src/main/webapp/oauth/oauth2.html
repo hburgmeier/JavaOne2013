@@ -8,6 +8,7 @@
     <link href="ext/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <script type="text/javascript" charset="utf-8" src="ext/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="ext/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="ext/cookie.js"></script>
 
     <link href="css/style.css" rel="stylesheet" media="screen">
 
@@ -15,7 +16,7 @@
 
     <script type="text/javascript" charset="utf-8">
         $(function () {
-                    var extractResponse = function (location) {
+                    var extractResponse = function (location, defaultClientId) {
                         var result = {
                             token: null,
                             error: null,
@@ -25,7 +26,16 @@
                         var cMatch = location.hash.match(/client=([\w\-^/^=]+)/);
                         if (cMatch) {
                             result.client = cMatch[1];
+                        } else {
+                            var clientCookie = docCookies.getItem('client');
+                            if (clientCookie && clientCookie !== 'null') {
+                                result.client = clientCookie;
+                            } else {
+                                result.client = defaultClientId;
+                            }
                         }
+                        docCookies.setItem('client', result.client, null, location.pathname);
+
                         // token if we where already authorized
                         var atMatch = location.hash.match(/at=(\w+)/);
                         if (atMatch) {
@@ -100,14 +110,17 @@
 
                     $('#loadResource').click(function (event) {
                         loadResource(resourceHost, response.token, loadResourceSuccess, loadResourceError);
+                        $('#alert').removeClass('alert-danger').text('');
                     });
 
                     //mm-test-espresso-2
                     //Client-ID 8541142e-b205-4b82-9c79-3a4c4f0f4f96
                     //redirect = 'http://localhost/oauth/oauth.html'
+                    // test-2
+                    //2815f74a-17fc-4b92-977e-62a2a0a5d181
 
-                    // auth settings
-                    var clientId = '8541142e-b205-4b82-9c79-3a4c4f0f4f96';
+                    // auth settings (default clientId)
+                    var defaultClientId = '8541142e-b205-4b82-9c79-3a4c4f0f4f96';
                     var authHost = 'authserver-j1bof3861.rhcloud.com';
                     var endUserAuthorizationEndpoint = 'http://' + authHost + "/oauth2/authorize";
                     var scope = 'espresso';
@@ -115,15 +128,10 @@
                     var resourceHost = 'http://resourceserver-j1bof3861.rhcloud.com/rest/coffee';
 
                     // process auth server response
-                    var response = extractResponse(location);
-
-                    // use clientId provided on URL is any
-                    if (response.client) {
-                        clientId = response.client;
-                    }
+                    var response = extractResponse(location, defaultClientId);
 
                     // beautify locationbar and get correct redirect uri
-                    var redirect = cleanLocation(response.token, clientId);
+                    var redirect = cleanLocation(response.token, response.client);
 
                     if (response.token) {
                         $('#authenticated').removeClass('hide');
@@ -137,14 +145,16 @@
 
                     var authUrl = endUserAuthorizationEndpoint +
                             "?response_type=token" +
-                            "&client_id=" + clientId +
+                            "&client_id=" + response.client +
                             "&redirect_uri=" + redirect +
                             "&scope=" + scope;
 
                     $('#connect').attr("href", authUrl);
                     $('#authHost').text(authHost);
-                    $('#clientId').text(clientId);
-
+                    $('#clientId').text(response.client);
+                    if (response.client === defaultClientId) {
+                        $('#defaultClient').removeClass('hide');
+                    }
                 }
         );
     </script>
@@ -157,6 +167,7 @@
     <div id="authenticate">
         <h3>Authenticate</h3>
         <a id="connect" class="btn btn-primary" href="">Connect</a> <strong>Provider</strong> <span id="authHost"></span> <strong>Client</strong> <span id="clientId"></span>
+        <span id="defaultClient" class="hide"><strong>(default)</strong></span>
     </div>
 
     <div id="authenticated" class="hide">

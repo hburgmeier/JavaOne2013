@@ -1,5 +1,6 @@
 package com.github.hburgmeier.javaone2013.samples.coffee;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -31,15 +32,15 @@ public class CoffeeReaderTest {
 		}
 	}
 	
-	@Ignore // does not work on Mondays
 	@Test
 	public void testParse() throws CoffeeReadException, URISyntaxException, IOException
 	{
 		File prices = new File(this.getClass().getResource("/prices.html").toURI());
 		String priceTable = FileUtils.readFileToString(prices);
-		String currentPrice = reader.parseHtmlTable(priceTable );
+		String currentPrice = reader.parseHtmlTable(priceTable);
 		assertNotNull(currentPrice);
 		assertNotEquals("unknown", currentPrice);
+		assertEquals("96.42", currentPrice);
 		
 		try {
 			Float.parseFloat(currentPrice);

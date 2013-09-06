@@ -38,22 +38,18 @@ public class CoffeeReader {
 	}
 
 	protected String parseHtmlTable(String priceTable) {
-		String currentDate = getCurrentDate();
-		
-		Pattern matcher = Pattern.compile(currentDate+"</td>[^<]*<td[^>]*>(\\d+\\.\\d+)");
+		;
+		Pattern matcher = Pattern.compile("</td>[^<]*<td class=xl88>(\\d+\\.\\d+)");
 		Matcher match = matcher.matcher(priceTable);
-		if (match.find())
+		
+		String lastPrice = "unknown";
+		
+		boolean found = match.find();
+		while (found)
 		{
-			return match.group(1);
-		} else
-			return "unknown";
+			lastPrice = match.group(1);
+			found = match.find();
+		}
+		return lastPrice;
 	}
-	
-	protected String getCurrentDate()
-	{
-		DateFormat format = new SimpleDateFormat("dd-MMM");
-		Date today = new Date(System.currentTimeMillis() - DAY);
-		return format.format(today);
-	}
-	
 }
